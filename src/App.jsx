@@ -19,38 +19,43 @@ function App() {
     const canvas = qrRef.current.querySelector('canvas');
     if (!canvas) return;
 
-    // Convert canvas to JPG with white background
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    const ctx = tempCanvas.getContext('2d');
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    ctx.drawImage(canvas, 0, 0);
+    try {
+      // 1. Convert canvas to JPG with white background
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      ctx.drawImage(canvas, 0, 0);
 
-    const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.9);
-    const blob = await (await fetch(dataUrl)).blob();
-    const fileName = `smart-qr-${Date.now()}.jpg`;
-    const file = new File([blob], fileName, { type: 'image/jpeg' });
+      const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.9);
+      const fileName = `smart-qr-${Date.now()}.jpg`;
 
-    // Check if Web Share API and file sharing is supported
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          files: [file],
-          title: 'Smart QR Code',
-          text: `Check out this QR code: ${currentQR}`,
-        });
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.error('Share failed:', err);
-          // Fallback to download on error
-          triggerDownload(dataUrl, fileName);
+      // 2. Try native sharing first
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'smart QR',
+            text: '나나컴퍼니 smart QR에서 생성한 QR 코드야!',
+          });
+          return; // Success!
         }
       }
-    } else {
-      // Fallback for Desktop/unsupported browsers
+
+      // 3. Fallback to download if sharing is not supported or fails
       triggerDownload(dataUrl, fileName);
+    } catch (err) {
+      console.error('Action failed:', err);
+      // Final fallback
+      const canvas = qrRef.current.querySelector('canvas');
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      triggerDownload(dataUrl, `smart-qr-${Date.now()}.jpg`);
     }
   };
 
@@ -58,8 +63,10 @@ function App() {
     const link = document.createElement('a');
     link.download = name;
     link.href = url;
+    document.body.appendChild(link);
     link.click();
-    alert('이미지가 다운로드되었어! 😊');
+    document.body.removeChild(link);
+    alert('이 브라우저는 공유 기능을 지원하지 않아서 이미지로 다운로드했어! 😊');
   };
 
   const handleReset = () => {
