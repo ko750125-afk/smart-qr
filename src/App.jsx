@@ -15,28 +15,51 @@ function App() {
     setCurrentQR(url);
   };
 
-  const downloadQR = () => {
+  const handleShareOrDownload = async () => {
     const canvas = qrRef.current.querySelector('canvas');
     if (!canvas) return;
 
-    // Convert canvas to JPG
-    // Note: Canvas defaults to PNG. We draw it on a white background first to support JPG (which doesn't have transparency)
+    // Convert canvas to JPG with white background
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
     const ctx = tempCanvas.getContext('2d');
-    
-    // Fill white background
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    
-    // Draw QR code
     ctx.drawImage(canvas, 0, 0);
 
+    const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.9);
+    const blob = await (await fetch(dataUrl)).blob();
+    const fileName = `smart-qr-${Date.now()}.jpg`;
+    const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+    // Check if Web Share API and file sharing is supported
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'Smart QR Code',
+          text: `Check out this QR code: ${currentQR}`,
+        });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Share failed:', err);
+          // Fallback to download on error
+          triggerDownload(dataUrl, fileName);
+        }
+      }
+    } else {
+      // Fallback for Desktop/unsupported browsers
+      triggerDownload(dataUrl, fileName);
+    }
+  };
+
+  const triggerDownload = (url, name) => {
     const link = document.createElement('a');
-    link.download = `smart-qr-${Date.now()}.jpg`;
-    link.href = tempCanvas.toDataURL('image/jpeg', 0.9);
+    link.download = name;
+    link.href = url;
     link.click();
+    alert('이미지가 다운로드되었어! 😊');
   };
 
   const handleReset = () => {
@@ -84,7 +107,7 @@ function App() {
                 {/* QR Display Area */}
                 <motion.div 
                   className="qr-display"
-                  onClick={downloadQR}
+                  onClick={handleShareOrDownload}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   ref={qrRef}
@@ -95,7 +118,7 @@ function App() {
                     level="H"
                     includeMargin={true}
                   />
-                  <p className="qr-hint"><Download size={14} style={{ marginRight: 4 }} /> 클릭해서 JPG로 다운로드</p>
+                  <p className="qr-hint"><Download size={14} style={{ marginRight: 4 }} /> 클릭해서 공유 또는 다운로드</p>
                 </motion.div>
 
                 {/* Input moves down */}
