@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Link as LinkIcon, RefreshCw } from 'lucide-react';
+import AdSenseContainer from './AdSenseContainer';
 
 function QRGenerator() {
   const [url, setUrl] = useState('');
@@ -140,6 +141,9 @@ function QRGenerator() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Safe Ad Placement Area (35px Margin Included) */}
+      <AdSenseContainer />
     </div>
   );
 }

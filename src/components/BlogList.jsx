@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BookOpen, Calendar, ArrowRight } from 'lucide-react';
 import { blogPosts } from '../data/posts';
+import AdSenseContainer from './AdSenseContainer';
 
 function BlogList() {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -62,6 +63,9 @@ function BlogList() {
           </button>
         ))}
       </div>
+
+      {/* Safe Ad Placement Area (35px Margin-bottom Included) */}
+      <AdSenseContainer style={{ margin: '0 0 35px 0' }} />
 
       {/* Blog Cards Grid */}
       <motion.div

@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, BookOpen } from 'lucide-react';
 import { blogPosts } from '../data/posts';
+import AdSenseContainer from './AdSenseContainer';
 
 function BlogPost() {
   const { id } = useParams();
@@ -87,6 +88,9 @@ function BlogPost() {
         <div style={{ width: '60px', height: '4px', backgroundColor: '#3b82f6', borderRadius: '2px' }}></div>
       </header>
 
+      {/* Top AdSense Container (35px Margin-bottom Included) */}
+      <AdSenseContainer style={{ margin: '0 0 35px 0' }} />
+
       {/* Post Content Area */}
       <div className="post-content" style={{ 
         color: '#334155', 
@@ -100,6 +104,9 @@ function BlogPost() {
           </p>
         ))}
       </div>
+
+      {/* Bottom AdSense Container (35px Margin-top Included) */}
+      <AdSenseContainer style={{ margin: '35px 0 0 0' }} />
 
       {/* Bottom Card for Call to Action */}
       <div style={{ 
