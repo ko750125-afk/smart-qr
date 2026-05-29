@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Mail, Send, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Send, CheckCircle } from 'lucide-react';
 
 function AboutUs() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -43,14 +43,9 @@ function AboutUs() {
             <p style={{ color: '#475569', fontSize: '1rem', lineHeight: '1.7', marginBottom: '1.25rem' }}>
               **smart QR** is a premium, secure, and fast utility designed to bridge the physical and digital worlds. Built on modern web technologies, it allows individuals and businesses to generate high-resolution QR codes in seconds.
             </p>
-            <p style={{ color: '#475569', fontSize: '1rem', lineHeight: '1.7', marginBottom: '1.5rem' }}>
+            <p style={{ color: '#475569', fontSize: '1rem', lineHeight: '1.7' }}>
               We prioritize user privacy above all: our generator operates entirely client-side, meaning your target URLs are never stored, logged, or distributed. The project was designed and polished with ultimate detail by <strong>Black</strong>.
             </p>
-          </div>
-
-          <div style={{ paddingTop: '1.5rem', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b' }}>
-            <Mail size={18} />
-            <span style={{ fontSize: '0.9rem' }}>support@smart-qr-alpha.vercel.app</span>
           </div>
         </div>
 
