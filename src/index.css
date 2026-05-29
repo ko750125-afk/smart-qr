@@ -202,6 +202,10 @@ main {
   color: var(--primary) !important;
 }
 
+.footer-link:hover {
+  color: var(--primary) !important;
+}
+
 .cta-btn:hover {
   background-color: var(--primary-hover) !important;
   transform: translateY(-2px);
