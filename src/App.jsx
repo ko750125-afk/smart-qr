@@ -42,7 +42,7 @@ function App() {
           await navigator.share({
             files: [file],
             title: 'smart QR',
-            text: '나나컴퍼니 smart QR에서 생성한 QR 코드야!',
+            text: 'Here is your QR code generated with smart QR!',
           });
           return; // Success!
         }
@@ -66,7 +66,7 @@ function App() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    alert('이 브라우저는 공유 기능을 지원하지 않아서 이미지로 다운로드했어! 😊');
+    alert("This browser doesn't support sharing, so the image has been downloaded instead! 😊");
   };
 
   const handleReset = () => {
@@ -91,7 +91,7 @@ function App() {
                 exit={{ opacity: 0, y: 100 }}
                 className="input-group"
               >
-                <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>URL을 입력해줘!</h2>
+                <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Enter URL</h2>
                 <form onSubmit={handleGenerate}>
                   <input
                     type="text"
@@ -101,7 +101,7 @@ function App() {
                     onChange={(e) => setUrl(e.target.value)}
                     autoFocus
                   />
-                  <button type="submit" className="submit-btn">QR 코드 생성하기</button>
+                  <button type="submit" className="submit-btn">Generate QR Code</button>
                 </form>
               </motion.div>
             ) : (
@@ -125,7 +125,7 @@ function App() {
                     level="H"
                     includeMargin={true}
                   />
-                  <p className="qr-hint"><Download size={14} style={{ marginRight: 4 }} /> 클릭해서 공유 또는 다운로드</p>
+                  <p className="qr-hint"><Download size={14} style={{ marginRight: 4 }} /> Click to share or download</p>
                 </motion.div>
 
                 {/* Input moves down */}
@@ -141,7 +141,7 @@ function App() {
                     <span style={{ fontSize: '0.9rem', color: '#64748b', wordBreak: 'break-all' }}>{currentQR}</span>
                   </div>
                   <button onClick={handleReset} className="submit-btn" style={{ background: '#f1f5f9', color: '#475569' }}>
-                    <RefreshCw size={16} style={{ marginRight: 8 }} /> 다른 URL 입력하기
+                    <RefreshCw size={16} style={{ marginRight: 8 }} /> Enter another URL
                   </button>
                 </motion.div>
               </motion.div>
@@ -151,7 +151,7 @@ function App() {
       </main>
 
       <footer>
-        <p>© 2026 나나컴퍼니 smart QR. Designed by 은영 ✨</p>
+        <p>© 2026 smart QR. Designed by Black ✨</p>
       </footer>
     </div>
   );
