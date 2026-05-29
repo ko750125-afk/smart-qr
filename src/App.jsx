@@ -1,159 +1,54 @@
-import React, { useState, useRef } from 'react';
-import { QRCodeCanvas } from 'qrcode.react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Link as LinkIcon, RefreshCw } from 'lucide-react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
+import QRGenerator from './components/QRGenerator';
+import BlogList from './components/BlogList';
+import BlogPost from './components/BlogPost';
 import './index.css';
 
 function App() {
-  const [url, setUrl] = useState('');
-  const [currentQR, setCurrentQR] = useState('');
-  const qrRef = useRef();
-
-  const handleGenerate = (e) => {
-    e.preventDefault();
-    if (!url) return;
-    setCurrentQR(url);
-  };
-
-  const handleShareOrDownload = async () => {
-    const canvas = qrRef.current.querySelector('canvas');
-    if (!canvas) return;
-
-    try {
-      // 1. Convert canvas to JPG with white background
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      const ctx = tempCanvas.getContext('2d');
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-      ctx.drawImage(canvas, 0, 0);
-
-      const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.9);
-      const fileName = `smart-qr-${Date.now()}.jpg`;
-
-      // 2. Try native sharing first
-      if (typeof navigator !== 'undefined' && navigator.share) {
-        const response = await fetch(dataUrl);
-        const blob = await response.blob();
-        const file = new File([blob], fileName, { type: 'image/jpeg' });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: 'smart QR',
-            text: 'Here is your QR code generated with smart QR!',
-          });
-          return; // Success!
-        }
-      }
-
-      // 3. Fallback to download if sharing is not supported or fails
-      triggerDownload(dataUrl, fileName);
-    } catch (err) {
-      console.error('Action failed:', err);
-      // Final fallback
-      const canvas = qrRef.current.querySelector('canvas');
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      triggerDownload(dataUrl, `smart-qr-${Date.now()}.jpg`);
-    }
-  };
-
-  const triggerDownload = (url, name) => {
-    const link = document.createElement('a');
-    link.download = name;
-    link.href = url;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    alert("This browser doesn't support sharing, so the image has been downloaded instead! 😊");
-  };
-
-  const handleReset = () => {
-    setUrl('');
-    setCurrentQR('');
-  };
-
   return (
-    <div className="App">
-      <header style={{ justifyContent: 'center' }}>
-        <h1 className="site-name">smart QR</h1>
-      </header>
+    <BrowserRouter>
+      <div className="App" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        {/* Sticky Header with Navigation Bar */}
+        <header>
+          <NavLink to="/" className="site-name">
+            <span style={{ display: 'inline-block', padding: '6px 12px', background: '#2563eb', color: '#ffffff', borderRadius: '10px', fontSize: '1.1rem', fontWeight: 900 }}>QR</span>
+            smart QR
+          </NavLink>
+          <nav className="nav-links">
+            <NavLink 
+              to="/" 
+              className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+              end
+            >
+              Generator
+            </NavLink>
+            <NavLink 
+              to="/blog" 
+              className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            >
+              Insights & Guide
+            </NavLink>
+          </nav>
+        </header>
 
-      <main>
-        <div className="container">
-          <AnimatePresence mode="wait">
-            {!currentQR ? (
-              <motion.div
-                key="input-screen"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, y: 100 }}
-                className="input-group"
-              >
-                <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Enter URL</h2>
-                <form onSubmit={handleGenerate}>
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="https://example.com"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    autoFocus
-                  />
-                  <button type="submit" className="submit-btn">Generate QR Code</button>
-                </form>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="qr-screen"
-                initial={{ opacity: 0, y: -50 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="container"
-              >
-                {/* QR Display Area */}
-                <motion.div 
-                  className="qr-display"
-                  onClick={handleShareOrDownload}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  ref={qrRef}
-                >
-                  <QRCodeCanvas 
-                    value={currentQR} 
-                    size={256} 
-                    level="H"
-                    includeMargin={true}
-                  />
-                  <p className="qr-hint"><Download size={14} style={{ marginRight: 4 }} /> Click to share or download</p>
-                </motion.div>
+        {/* Dynamic Route Content */}
+        <main>
+          <Routes>
+            <Route path="/" element={<QRGenerator />} />
+            <Route path="/blog" element={<BlogList />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
+            {/* Fallback to Home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
 
-                {/* Input moves down */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="input-group"
-                  style={{ marginTop: '1rem', padding: '1.5rem' }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-                    <LinkIcon size={18} color="#64748b" />
-                    <span style={{ fontSize: '0.9rem', color: '#64748b', wordBreak: 'break-all' }}>{currentQR}</span>
-                  </div>
-                  <button onClick={handleReset} className="submit-btn" style={{ background: '#f1f5f9', color: '#475569' }}>
-                    <RefreshCw size={16} style={{ marginRight: 8 }} /> Enter another URL
-                  </button>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </main>
-
-      <footer>
-        <p>© 2026 smart QR. Designed by Black ✨</p>
-      </footer>
-    </div>
+        {/* Global Footer */}
+        <footer>
+          <p>© 2026 smart QR. All rights reserved. Designed by Black ✨</p>
+        </footer>
+      </div>
+    </BrowserRouter>
   );
 }
 
